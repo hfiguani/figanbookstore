@@ -1,0 +1,63 @@
+@import url(http://fonts.googleapis.com/css?family=Lora|Ubuntu:300,400,500);
+
+
+
+/* General styles */
+
+body {
+  background-color: #fff;
+  font-family: 'Lora', serif;
+  padding:0px;
+  margin:0px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 300;
+}
+
+.container{
+  width: 100%;
+  height: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 0px;
+
+}
+nav{
+  width:100%;
+  height:75px;
+  box-shadow: 0 0 5px #000;
+  vertical-align: center;
+}
+.logo {
+  float:left;
+  width:7%;
+  height:100%;
+  padding-left:20px;
+
+}
+.links{
+  height: 100%;
+  width:70%;
+  float:right;
+  margin-top:4px;
+  margin-right:10px;
+  text-align:right;
+}
+.content div{float:left;}
+.icon{
+  height:40px;
+  length:40px;
+  opacity:.5;
+  ;
+}
+.logotext{
+  height: 100%;
+  width:23%;
+  float:left;
+  text-align:left;
+  font-size: 30px;
+  font-family: 'Suranna', serif;
+  vertical-align: center;
+}
