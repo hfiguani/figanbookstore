@@ -1,0 +1,55 @@
+<p id="notice"><%= notice %></p>
+<div class="showbookcover">
+  <% if @book.cover.attached? %>
+    <%= image_tag(@book.cover, :class => "coverstyle")  %>
+  <%else %>
+    <%= image_tag("defbookcover.jpg", :class => "coverstyle") %>
+  <%end %>
+  <div class="average-review-rating" data-score="<%=@average_review %>" style="padding-top: 5px">
+  </div>
+  <p>
+    <strong><%=number_to_currency @book.price %></strong>
+    <span style="float: right;margin-left:10px "><%=link_to "Add to cart", add_to_cart_path(@book.id),class: "buybtn" %></span>
+  </p>
+    <%= @book.quantity.to_i %>
+    <strong>Left only!</strong>
+  </p>
+</div>
+<div class="showbookinfo">
+  <div style="height: 50px; width:100%">
+    <h2><%= @book.title %></h2>
+  </div>
+<p>
+  <strong>Title:</strong>
+  <%= @book.title %>
+</p>
+
+<p>
+  <strong>ISBN:</strong>
+  <%=@book.ISBN%>
+</p>
+
+  <p>
+    <strong>Author:</strong>
+    <%= @book.author %>
+  </p>
+  <strong>Description:</strong>
+  <p>
+  <%= @book.description %>
+</p>
+  <hr>
+  <div class="showrating">
+    <h3>Average Rating</h3>
+    <div class="average-review-rating" data-score="<%=@average_review %>">
+    </div>
+    <p>Based on <%=pluralize @book.reviews.count, 'review' %> </p>
+    <p>
+      <%= link_to 'Add Review', new_book_review_path(@book) %>
+    </p>
+    <p>
+      <%= render @book.reviews %>
+    </p>
+    <%= link_to 'Back', root_path %>
+  </div>
+</div>
+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" id="26fe5daf-e786-4f8c-b557-59f895c34846" customName="ftpupload.net" nameFormat="CUSTOM">
+        <option name="customName" value="ftpupload.net" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

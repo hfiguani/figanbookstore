@@ -1,14 +1,55 @@
-@import url(http://fonts.googleapis.com/css?family=Lora|Ubuntu:300,400,500);
-
-
 
 /* General styles */
-
+*{
+  font-family:  'Ubuntu', sans-serif;
+  color:#2E2F30;
+}
 body {
   background-color: #fff;
-  font-family: 'Lora', serif;
   padding:0px;
   margin:0px;
+}
+nav{
+  width:100%;
+  height:75px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 0 4px #999;
+  align-items: center;
+  border-bottom: #444
+
+}
+.logo {
+  float: left;
+  cursor: pointer;
+  padding-left:30px;
+  width: 30%;
+}
+.logo_img {
+  border-left: 2px solid #DCD6CC ;
+  cursor: pointer;
+  padding-left:7px;
+  width: 200px;
+  height: 40px;
+  opacity: 0.9;
+}
+.links{
+  float:right;
+  width: 35%;
+  margin-right:30px;
+  text-align: right;
+  vertical-align: auto;
+}
+.links a {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.icon{
+  height:40px;
+  width:40px;
+  opacity:.8;
+  padding-right:7px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -22,42 +63,244 @@ h1, h2, h3, h4, h5, h6 {
   margin-right: auto;
   margin-left: auto;
   margin-top: 0px;
+}
+.content
+{
+  margin-top: 25px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.categories {
+  width:12%;
+  float:left;
+  padding:10px;
+}
+.categories ul {
+  margin-top: 5px;
+  list-style-type: none;
+}
+
+.middlecontent{
+  width:72%;
+  float:left;
+  //display: flex;
+  flex-direction: row;
+  justify-content:left;
+  flex-wrap: wrap;
+}
+.showbookcover{
+  float:left;
+  text-align: right;
+  padding-right:10px;
+  width:25%;
+  margin-top: 65px;
+  border-right: 1px #999999 dashed;
+  }
+.showbookinfo{
+  width:65%;
+  float:left;
+  text-align: left;
+  text-align: justify;
+  padding-left: 20px;
+  padding-right: 40px;
+  }
+.showrating{
+  float:left;
+  flex-flow: column;
 
 }
-nav{
+.sidebar{
+  width:16%;
+  padding-left: 15px;
+  float:left;
+}
+.footer{
+  height: 420px;
   width:100%;
-  height:75px;
-  box-shadow: 0 0 5px #000;
-  vertical-align: center;
+  padding-top: 10px;
+  .col_white_amrc { color:#000;font-size: large}
+  .pt2 { padding-top:40px ; margin-bottom:20px ;}
+  .footer p { font-size:13px; color:#CCC; padding-bottom:0px; margin-bottom:8px;}
+  .footer_ul_amrc { margin:0px ; list-style-type:none ; font-size:14px; padding:0px 0px 10px 0px ; }
+  .footer_ul_amrc li {padding:0px 0px 5px 0px;}
+  .footer_ul_amrc li a:hover{ color:#666666; text-decoration:none;}
+  .fleft { float:left;}
+  .padding-right { padding-right:10px; }
+  .quick_links,.about_us,.find_us {
+    width:17%;
+    padding:20px;
+    height:300px;
+    text-align: justify;
+  }
+  .footer_bottom{ width:100% ;border-top:1px solid #323f45; padding-bottom:40px;}
+
+  .footer_ul2_amrc {margin:0px; list-style-type:none; padding:0px;}
+  .footer_ul2_amrc li p { display:table; }
+  .footer_ul2_amrc li a:hover { text-decoration:none;}
+  .footer_ul2_amrc li i { margin-top:5px;}
+  .foote_bottom_ul_amrc {
+    list-style-type:none;
+    padding:0px;
+    display:table;
+    margin-top: 10px;
+    margin-right: auto;
+    margin-bottom: 10px;
+    margin-left: auto;
+  }
+  .text-center{text-align: center}
+  .foote_bottom_ul_amrc li { display:inline;}
+  .foote_bottom_ul_amrc li a { color:#999; margin:0 12px;}
+
+  .social_footer_ul { display:table; margin:15px auto 0 auto; list-style-type:none;  }
+  .social_footer_ul li { padding-left:20px; padding-top:10px; float:left; }
+  .social_footer_ul li a { color:#CCC; border:1px solid #CCC; padding:8px;border-radius:50%;}
+  .social_footer_ul li i {  width:20px; height:20px; text-align:center;}
 }
-.logo {
-  float:left;
-  width:7%;
-  height:100%;
-  padding-left:20px;
+.form-search{
+  align-items: center;
+  margin-right: 20px;
+  margin-top: 6px;
+  float: right;
+}
+.form-search > * {
+  display: inline;
+  border:none;
+  vertical-align:bottom;
+}
+.form-search input {
+  border: none;
+  height: 25px;
+  outline: none;
+  border-bottom: #DCD6CC 1px solid;
+}
+.form-search input:active{
+  border: none;
+}
+.form-search input[type="submit"]{
+  width: 30px;
+  height: 29px;
+  border: #DCD6CC  1px solid;
+  border-radius:4px;
+  background:url("search_icon.png");
+  background-size: cover;
+  color:#666666;
+ }
+.buybtn{
+  background-color: lightgray;
+  color: white;
+  padding: 3px;
+  border: 1px solid gray;
+  border-radius:2px;
+  transition-duration: 0.3s;
+}
+.buybtn:hover {
+    background-color: #555;
+    color: white;
+  }
+.stripe
+{
 
 }
-.links{
-  height: 100%;
-  width:70%;
-  float:right;
-  margin-top:4px;
-  margin-right:10px;
-  text-align:right;
+ //--------------pagination -------------
+
+.pagination {
+  width: 100%;
+  height: 30px;
+  text-align: center;
+  padding-top:25px;
+  justify-content: space-between;
+  clear: both;
 }
-.content div{float:left;}
-.icon{
-  height:40px;
-  length:40px;
-  opacity:.5;
-  ;
+
+.pagination a,.pagination em {
+  display: inline-block;
+  font-weight: 300;
+  padding-top: 1px;
+  text-decoration:none;
+  border: 1px solid lightgray;
+  width:40px;
 }
-.logotext{
-  height: 100%;
-  width:23%;
-  float:left;
-  text-align:left;
-  font-size: 30px;
-  font-family: 'Suranna', serif;
-  vertical-align: center;
+a.previous_page, a.next_page {
+  width:80px;
+}
+.current{
+  color: dodgerblue;
+}
+
+.checkout{
+  padding:6px 33% 6px 33%;
+  background-color:limegreen;
+  color:white;
+   font-weight: bolder;
+  border-radius: 5px;
+}
+.payment-methods {
+  margin: auto;
+  padding-top: 20px;
+  clear: both;
+  padding-top: 60px;
+}
+.stripe{
+  opacity: 0.7;
+  padding-bottom:10px;
+}
+.main_cart{
+  width: 80%;
+  padding-top: 40px;
+  margin: auto;
+  text-align: center;
+}
+.shopping-cart{
+  text-align: left;
+  padding-bottom: 5px;
+  font-family: Georgia, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  border-bottom: #555555 2px solid;
+  opacity: 0.7;
+}
+
+
+.field {
+  margin: 10px;
+}
+.actions {
+  margin: 10px;
+}
+.form-inputs > *{
+  margin: 10px;
+}
+.form-style {
+ margin: auto;
+}
+.form-review-style{
+  width: 400px;
+  margin:auto;
+  border: #666666 1px solid;
+  padding: 20px;
+}
+
+.showbookcover{
+  width: 200px;
+  height: 220px;
+  margin:3px;
+}
+.single_book{
+  width: 88%;
+  height: 250px;
+  margin:10px;
+  padding-right: 100px;
+
+}
+.bottom_links a {
+  padding: 3px;
+}
+.bottom_links{
+  padding-top: 4px;
+}
+.book_partial_info{
+  text-align: justify;
 }

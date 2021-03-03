@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="3cada0f9-1a05-4db9-9ea0-977f101962b5" name="ftpupload.net" url="http://figanbookstore.infinityfreeapp.com">
+        <fileTransfer rootFolder="/ figanbookstore.infinityfreeapp.com" host="&#9;ftpupload.net" port="21">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

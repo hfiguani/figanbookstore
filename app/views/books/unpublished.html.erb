@@ -1,0 +1,34 @@
+
+
+<% if @Unpub_books.count == 0 %>
+  <h5>There are no unpublished books</h5>
+<%else %>
+
+    <% @Unpub_books.each do |book| %>
+        <div class="single_book">
+          <div class="showbookcover" style="margin-right: 3px"> <% if book.cover.attached? %>
+              <%=link_to image_tag(book.cover, :class => "coverstyle") ,catalog_book_show_path(0,:book_id=>book.id) %>
+            <%else %>
+              <%=link_to image_tag("defbookcover.jpg", :class => "coverstyle") ,catalog_book_show_path(0,:book_id=>book.id) %>
+            <%end %></div>
+          <div class="book_info">
+            <div class="book_partial_info"><p><%= book.title%></p>
+              <p><%= book.ISBN %></p>
+              <p><%= book.author %></p>
+              <p>
+                <%= number_to_currency book.price %> - <%= book.quantity.to_i %> left</p>
+              <P>  <%= book.description[0,600]+' ... ' %></P>
+            </div>
+            <div class="bottom_links" style="text-align: right"> <%= link_to 'PUBLISH', admin_publish_book_path(:id=>book.id) %>
+              <%= link_to 'UNPUBLISH', unpublish_book_path(:id=>book.id) %>
+              <%= link_to 'EDIT', edit_admin_book_path(:id=>book.id) %>
+              <%= link_to 'DESTROY',  admin_book_path(:id=>book.id), method: :delete, data: { confirm: 'Are you sure?' } %>
+            </div>
+          </div>
+        </div>
+
+      <%end %>
+<%end %>
+<br>
+
+<%= will_paginate @Unpub_books, :style => 'color:blue'%>

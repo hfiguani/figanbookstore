@@ -1,0 +1,22 @@
+// Place all the styles related to the Books controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: https://sass-lang.com/
+.coverstyle {
+  width: 150px;
+  height: 210px;
+  padding: 2px;
+ // border: #999999 1px solid;
+
+  box-shadow: 0 3px 5px #666;
+}
+.coverstyle:hover {
+   transition: 0.1s;
+   transform: translate(0,-3px);
+
+}
+a{
+  text-decoration: none;
+}
+a:hover{
+  opacity: 0.8;
+ }

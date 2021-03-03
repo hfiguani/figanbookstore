@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+<div style="width: 100%;padding:0px 20px 20px 20px ">
+
+<h3>All Books</h3>
+<% if params[:category] %>
+  <h2><%=params[:category] %></h2>
+<%end %>
+<% if @all_books.count == 0 %>
+  <h3>We're sorry, there are no selections available at this time. Please check again soon.</h3>
+<%else %>
+
+    <% @all_books.each do |book| %>
+    <%= simple_form_for :book, :url=> root_path,:action=> "add_book_cart" ,:method => 'GET' do |f| %>
+    <div class="card" style="width: 150px; float: left; margin: 10px">
+      <% if book.cover.attached? %>
+        <%= link_to image_tag(book.cover, :class => "coverstyle"),catalog_book_show_path(0,:book_id=>book.id) %>
+      <%else %>
+        <%= link_to image_tag("defbookcover.jpg", :class => "coverstyle"), catalog_book_show_path(0,:book_id=>book.id)  %>
+      <%end %>
+  <div class="card-body">
+    <p class="card-text"></p>
+    <%book.title.size<36 ? book_title=book.title : book_title=book.title[0,35]+"..."%>
+    <h3 class="card-title" style="height: 30px"><%= link_to book_title, catalog_book_show_path(0,:book_id=>book.id)  %></h3>
+    <span style="float: left"><%= number_to_currency book.price %></span>
+    <% if book.in?(@cart) %>
+      <span style="float: right"><%=link_to "In the cart", root_path,class: "buybtn" %></span>
+      <%else %>
+    <span style="float: right"><%=link_to "Add to cart", add_to_cart_path(book.id),class: "buybtn" %></span>
+      <%end %>
+  </div>
+</div>
+    <% end %>
+    <% end %>
+
+<%end %>
+
+</div>
+<%= will_paginate @all_books%>
+<%=@d %>
+<br>

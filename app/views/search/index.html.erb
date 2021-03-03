@@ -1,0 +1,42 @@
+<h1>Search Result</h1>
+<p id="notice"><%= notice %></p>
+
+<h1><%= @search.blank? ? "All books" : "Books matching '"+@search+"'"%></h1>
+<% if @books.count == 0 %>
+  <h3>There are no books with <%=@search %>. Please check again later.</h3>
+<%else %>
+
+
+  <% @books.each do |book| %>
+    <%= simple_form_for :book, method: "POST" do |f| %>
+      <div class="card" style="width: 150px; float: left; margin: 10px">
+
+     <table>  <tr>
+        <td><% if book.cover.attached? %>
+            <%= link_to image_tag(book.cover, :class => "coverstyle"),catalog_book_show_path(0,:book_id=>book.id) %>
+          <%else %>
+            <%= link_to image_tag("defbookcover.jpg", :class => "coverstyle"), catalog_book_show_path(0,:book_id=>book.id)  %>
+          <%end %>
+        </td></tr>
+        <tr> <td><%= link_to book.title.size<36 ? book_title=book.title : book_title=book.title[0,35]+"...", catalog_book_show_path(0,:book_id=>book.id)  %></td></tr>
+        <tr> <td><div class="review-rating" data-score="<% if not book.reviews.blank? %><%= book.reviews.average(:rating).to_f.round(2)%><%end %>"></div></td></tr>
+        <tr><td>$ <%= book.price %>  <span style="float: right"><%=link_to "Add to cart", add_to_cart_path(book.id),class: "buybtn" %></span></td>
+
+        </tr></table>
+      </div>
+    <% end %>
+  <% end %>
+
+<%end %>
+<br>
+<script>
+
+      $('.review-rating').raty({
+            readOnly: true,
+            score: function(){
+                  return $(this).attr('data-score');
+            },
+            path:'/assets/'
+      })
+</script>
+

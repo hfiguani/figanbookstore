@@ -1,0 +1,21 @@
+
+<%=simple_form_for([@book, @book.reviews.build]) do |form| %>
+  <div class="form-review-style">
+    <h1>New Review</h1>
+  <div id="rating-form">
+    <label> Rating </label>
+  </div>
+  <%=form.input :comment %>
+  <%=form.button :submit %>
+  </div>
+  <%end %>
+<script type="text/javascript">
+
+$('#rating-form').raty({
+    path:'/assets/',
+    readOnly: false,
+    number:5,
+    size:1,
+    scoreName: 'review[rating]'
+})
+</script>

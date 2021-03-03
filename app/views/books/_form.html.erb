@@ -1,0 +1,56 @@
+<%= form_with(model: book,:class => 'text-center border border-light p-5',:html =>{:multipart=> true}, local: true) do |form| %>
+  <% if book.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(book.errors.count, "error") %> prohibited this book from being saved:</h2>
+
+      <ul>
+        <% book.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <% if current_page?(new_book_path)%>
+      <%=select_tag(:category_id, options_for_select(@categories), :prompt =>"Select a Category")%>
+    <%else %>
+      <%= form.select :category_id, @categories%>
+    <%end %>
+  </div>
+  <div class="field">
+    <%= form.text_field :title ,:class=>"form-control mb-4", :placeholder=>"title"  %>
+  </div>
+
+  <div class="field">
+    <%= form.text_field :ISBN,:class=>"form-control mb-4", :placeholder=>"ISBN"  %>
+  </div>
+
+  <div class="field">
+    <%= form.text_area :description,:class=>"form-control mb-6", :placeholder=>"Description", :rows=>"10", :cols=>"80" %>
+  </div>
+
+  <div class="field">
+    <%= form.text_field :price,:class=>"form-control mb-4", :placeholder=>"Price"  %>
+  </div>
+
+  <div class="field">
+    <%= form.text_field :quantity,:class=>"form-control mb-4", :placeholder=>"Quantity"  %>
+  </div>
+  <div class="field">
+    <%= form.text_field :author ,:class=>"form-control mb-4", :placeholder=>"Author" %>
+  </div>
+
+
+    <div class="field">
+    <% if book.cover.attached? %>
+      <%= image_tag(book.cover, style: "width:150px; display:block ")%>
+      <%end %>
+    <%= form.file_field :cover %>
+  </div>
+
+
+  <div class="actions">
+    <%= form.submit :class=>"btn btn-info btn-block"%>
+  </div>
+<% end %>

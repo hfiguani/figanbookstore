@@ -1,0 +1,43 @@
+<p id="notice"><%= notice %></p>
+<div class="main_cart">
+<% if params[:category] %>
+  <h2><%=params[:category] %></h2>
+<%end %>
+<% if @cart.count == 0 %>
+  <h3>Your shopping cart is empty.</h3>
+<%else %>
+  <table style="width: 100%">
+    <thead>
+    <tr>
+      <th colspan="5" class="shopping-cart">
+        Shopping cart</th>
+    </tr>
+    </thead>
+
+    <tbody >
+    <% @cart.each do |book| %>
+      <tr >
+        <td style="text-align: left"><%= book.title%></td>
+        <td></td>
+        <td style="text-align: right"><%=number_to_currency book.price %></td>
+        <td style="text-align: right"><%= link_to '<i class="fas fa-trash-alt"></i>'.html_safe, remove_from_cart_path(:deleted_book_cart=>book.id), method: :delete, data: { confirm: 'Are you sure you want to delete this book?' } %></td>
+      </tr>
+    <% end %>
+    <tr><td  style="border-top: #666 4px solid" colspan="4"></td></tr>
+    <tr><td style="text-align: left">Sub-total</td><td></td><td style="text-align: right; font-weight:bold"><%= number_to_currency @total%></td><td></td></tr>
+    <tr><td style="text-align: left">Sales tax</td><td></td><td style="text-align: right; font-weight:bold"><%=number_to_currency  @sales_tax%></td><td></td></tr>
+    <tr><td style="text-align: left">Total</td><td></td><td style="text-align: right; font-weight:bold"><%= number_to_currency @total_after_tax%></td><td></td></tr>
+    </tbody>
+  </table>
+<%end %>
+<br>
+<div class="payment-methods">
+  <%= image_tag("stripe.png",{ :alt=>"stripe" , :hspace=>"5" , :vspace=>"5" , :border=>"0" , :height => "59",:class => "stripe" }) %>
+   <div><%= image_tag("visa-glossy.png",{ :alt=>"Visa" , :hspace=>"5" , :vspace=>"5" , :border=>"0" }) %>
+  <%= image_tag("mastercard-glossy.png",{ :alt=>"mastercard" , :hspace=>"5" , :vspace=>"5" , :border=>"0" }) %>
+  <%= image_tag("americanexpress-glossy.png",{ :alt=>"American Express" , :hspace=>"5" , :vspace=>"5" , :border=>"0" }) %>
+  <%= image_tag("discover-glossy.png", { :alt=>"Discover" , :hspace=>"5" , :vspace=>"5" , :border=>"0" }) %>
+  <%= image_tag("paypal-glossy.png", { :alt=>"PayPal" , :hspace=>"5" , :vspace=>"5" , :border=>"0" }) %>
+</div>
+</div>
+</div>

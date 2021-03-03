@@ -1,0 +1,918 @@
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Figan BookStore</title>
+      <%= csrf_meta_tags %>
+      <%= csp_meta_tag %>
+
+      <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+      <link href="https://fonts.googleapis.com/css?family=Suranna&display=swap" rel="stylesheet">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+<script type="text/javascript">
+    /*!
+    * Raty - A Star Rating Plugin
+    *
+    * The MIT License
+    *
+    * author:  Washington Botelho
+    * github:  wbotelhos/raty
+    * version: 3.0.0
+    *
+    */
+
+    (function(root, factory) {
+        if (typeof define === 'function' && define.amd) {
+            define(['jquery'], factory);
+        } else if (typeof module === 'object' && module.exports) {
+            module.exports = factory(require('jquery'));
+        } else {
+            factory(root.jQuery);
+        }
+    }(this, function($) {
+        'use strict';
+
+        $.raty = {
+            cancelButton: false,
+            cancelClass:  'raty-cancel',
+            cancelHint:   'Cancel this rating!',
+            cancelOff:    'cancel-off.png',
+            cancelOn:     'cancel-on.png',
+            cancelPlace:  'left',
+            click:        undefined,
+            half:         false,
+            halfShow:     true,
+            hints:        ['bad', 'poor', 'regular', 'good', 'gorgeous'],
+            iconRange:    undefined,
+            mouseout:     undefined,
+            mouseover:    undefined,
+            noRatedMsg:   'Not rated yet!',
+            number:       5,
+            numberMax:    5,
+            path:         undefined,
+            precision:    false,
+            readOnly:     false,
+            round:        { down: 0.25, full: 0.6, up: 0.76 },
+            score:        undefined,
+            scoreName:    'score',
+            single:       false,
+            space:        true,
+            starHalf:     'star-half.png',
+            starOff:      'star-off.png',
+            starOn:       'star-on.png',
+            starType:     'img',
+            target:       undefined,
+            targetFormat: '{score}',
+            targetKeep:   false,
+            targetScore:  undefined,
+            targetText:   '',
+            targetType:   'hint'
+        };
+
+        $.fn.raty = function(options) {
+            return this.each(function() {
+                var instance = new $.raty.Raty(this, options);
+
+                return instance._create();
+            });
+        };
+
+        $.raty.Raty = (function() {
+            var Raty = function(element, options) {
+                this.element = element;
+                this.self    = $(element);
+                this.opt     = $.extend(true, {}, $.raty, options, this.self.data());
+            };
+
+            Raty.prototype = {
+                _create: function() {
+                    this._executeCallbacks();
+                    this._adjustNumber();
+                    this._adjustHints();
+
+                    this.opt.score = this._adjustedScore(this.opt.score);
+
+                    if (this.opt.starType !== 'img') {
+                        this._adjustStarName();
+                    }
+
+                    this._setPath();
+                    this._createStars();
+
+                    if (this.opt.cancelButton) {
+                        this._createCancel();
+                    }
+
+                    if (this.opt.precision) {
+                        this._adjustPrecision();
+                    }
+
+                    this._createScore();
+
+                    this._apply(this.opt.score);
+                    this._setTitle(this.opt.score);
+                    this._target(this.opt.score);
+
+                    if (this.opt.readOnly) {
+                        this._lock();
+                    } else {
+                        this.element.style.cursor = 'pointer';
+
+                        this._binds();
+                    }
+
+                    this.self.data('raty', this);
+                },
+
+                // TODO: model spec
+                _adjustedScore: function(score) {
+                    if (score || score === 0) {
+                        return this._between(score, 0, this.opt.number);
+                    }
+                },
+
+                _adjustHints: function() {
+                    if (!this.opt.hints) {
+                        this.opt.hints = [];
+                    }
+
+                    if (!this.opt.halfShow && !this.opt.half) {
+                        return;
+                    }
+
+                    var steps = this.opt.precision ? 10 : 2;
+
+                    for (var i = 0; i < this.opt.number; i++) {
+                        var group = this.opt.hints[i];
+
+                        if (Object.prototype.toString.call(group) !== '[object Array]') {
+                            group = [group];
+                        }
+
+                        this.opt.hints[i] = [];
+
+                        for (var j = 0; j < steps; j++) {
+                            var hint = group[j];
+                            var last = group[group.length - 1];
+
+                            if (last === undefined) {
+                                last = null;
+                            }
+
+                            this.opt.hints[i][j] = hint === undefined ? last : hint;
+                        }
+                    }
+                },
+
+                _adjustNumber: function() {
+                    this.opt.number = this._between(this.opt.number, 1, this.opt.numberMax);
+                },
+
+                _adjustPrecision: function() {
+                    this.opt.half = true;
+                },
+
+                _adjustStarName: function() {
+                    var replaces = ['cancelOff', 'cancelOn', 'starHalf', 'starOff', 'starOn'];
+
+                    this.opt.path = '';
+
+                    for (var i = 0; i < replaces.length; i++) {
+                        this.opt[replaces[i]] = this.opt[replaces[i]].replace('.', '-');
+                    }
+                },
+
+                // TODO: model spec
+                _apply: function(score) {
+                    this._fill(score);
+
+                    if (score) {
+                        if (score > 0) {
+                            this.scoreField.val(score);
+                        }
+
+                        this._roundStars(score);
+                    }
+                },
+
+                _attributesForIndex: function(i) {
+                    var name       = this._nameForIndex(i);
+                    var attributes = { alt: i, src: this.opt.path + this.opt[name] };
+
+                    if (this.opt.starType !== 'img') {
+                        attributes = { 'data-alt': i, 'class': this.opt[name] };
+                    }
+
+                    attributes.title = this._getHint(i);
+
+                    return attributes;
+                },
+
+                _between: function(value, min, max) {
+                    return Math.min(Math.max(parseFloat(value), min), max);
+                },
+
+                // TODO: model spec
+                _binds: function() {
+                    if (this.cancelButton) {
+                        this._bindOverCancel();
+                        this._bindClickCancel();
+                        this._bindOutCancel();
+                    }
+
+                    this._bindOver();
+                    this._bindClick();
+                    this._bindOut();
+                },
+
+                // TODO: model spec
+                _bindClick: function() {
+                    var that = this;
+
+                    this.stars.on('click.raty', function(evt) {
+                        if (that.self.data('readonly')) {
+                            return;
+                        }
+
+                        var execute = true;
+                        var score   = (that.opt.half || that.opt.precision) ? that.self.data('score') : (this.alt || $(this).data('alt'));
+
+                        if (that.opt.half && !that.opt.precision) {
+                            score = that._roundHalfScore(score);
+                        }
+
+                        if (that.opt.click) {
+                            execute = that.opt.click.call(that.element, +score, evt);
+                        }
+
+                        if (execute || execute === undefined) {
+                            that._apply(+score);
+                        }
+                    });
+                },
+
+                // TODO: model spec
+                _bindClickCancel: function() {
+                    this.cancelButton.on('click.raty', function(evt) {
+                        this.scoreField.removeAttr('value');
+
+                        if (this.opt.click) {
+                            this.opt.click.call(this.element, null, evt);
+                        }
+                    }.bind(this));
+                },
+
+                // TODO: model spec
+                _bindOut: function() {
+                    this.self.on('mouseleave.raty', function(evt) {
+                        var score = +this.scoreField.val() || undefined;
+
+                        this._apply(score);
+                        this._target(score, evt);
+                        this._resetTitle();
+
+                        if (this.opt.mouseout) {
+                            this.opt.mouseout.call(this.element, score, evt);
+                        }
+                    }.bind(this));
+                },
+
+                // TODO: model spec
+                _bindOutCancel: function() {
+                    var that = this;
+
+                    this.cancelButton.on('mouseleave.raty', function(evt) {
+                        var icon = that.opt.cancelOff;
+
+                        if (that.opt.starType !== 'img') {
+                            icon = that.opt.cancelClass + ' ' + icon;
+                        }
+
+                        that._setIcon(this, icon);
+
+                        if (that.opt.mouseout) {
+                            var score = +that.scoreField.val() || undefined;
+
+                            that.opt.mouseout.call(that.element, score, evt);
+                        }
+                    });
+                },
+
+                // TODO: model spec
+                _bindOver: function() {
+                    var that   = this;
+                    var action = that.opt.half ? 'mousemove.raty' : 'mouseover.raty';
+
+                    this.stars.on(action, function(evt) {
+                        var score = that._getScoreByPosition(evt, this);
+
+                        that._fill(score);
+
+                        if (that.opt.half) {
+                            that._roundStars(score, evt);
+                            that._setTitle(score, evt);
+
+                            that.self.data('score', score);
+                        }
+
+                        that._target(score, evt);
+
+                        if (that.opt.mouseover) {
+                            that.opt.mouseover.call(that.element, score, evt);
+                        }
+                    });
+                },
+
+                // TODO: model spec
+                _bindOverCancel: function() {
+                    var that = this;
+
+                    this.cancelButton.on('mouseover.raty', function(evt) {
+                        if (that.self.data('readonly')) {
+                            return;
+                        }
+
+                        var starOff = that.opt.path + that.opt.starOff;
+                        var icon    = that.opt.cancelOn;
+
+                        if (that.opt.starType === 'img') {
+                            that.stars.attr('src', starOff);
+                        } else {
+                            icon = that.opt.cancelClass + ' ' + icon;
+
+                            that.stars.attr('class', starOff);
+                        }
+
+                        that._setIcon(this, icon);
+                        that._target(null, evt);
+
+                        if (that.opt.mouseover) {
+                            that.opt.mouseover.call(that.element, null);
+                        }
+                    });
+                },
+
+                // TODO: model spec
+                _buildScoreField: function() {
+                    return $('<input />', { name: this.opt.scoreName, type: 'hidden' }).appendTo(this.self);
+                },
+
+                // TODO: model spec
+                _createCancel: function() {
+                    var icon   = this.opt.path + this.opt.cancelOff;
+                    var button = $('<' + this.opt.starType + ' />', { title: this.opt.cancelHint, 'class': this.opt.cancelClass });
+
+                    if (this.opt.starType === 'img') {
+                        button.attr({ src: icon, alt: 'x' });
+                    } else {
+                        // TODO: use $.data
+                        button.attr('data-alt', 'x').addClass(icon);
+                    }
+
+                    if (this.opt.cancelPlace === 'left') {
+                        this.self.prepend('&#160;').prepend(button);
+                    } else {
+                        this.self.append('&#160;').append(button);
+                    }
+
+                    this.cancelButton = button;
+                },
+
+                // TODO: model spec
+                _createScore: function() {
+                    var score = $(this.opt.targetScore);
+
+                    this.scoreField = score.length ? score : this._buildScoreField();
+                },
+
+                _createStars: function() {
+                    for (var i = 1; i <= this.opt.number; i++) {
+                        var attributes = this._attributesForIndex(i);
+
+                        $('<' + this.opt.starType + ' />', attributes).appendTo(this.element);
+
+                        if (this.opt.space && i < this.opt.number) {
+                            this.self.append('&#160;');
+                        }
+                    }
+
+                    this.stars = this.self.children(this.opt.starType);
+                },
+
+                // TODO: model spec
+                _error: function(message) {
+                    $(this).text(message);
+
+                    $.error(message);
+                },
+
+                _executeCallbacks: function() {
+                    var options = ['number', 'readOnly', 'score', 'scoreName', 'target', 'path'];
+
+                    for (var i = 0; i < options.length; i++) {
+                        if (typeof this.opt[options[i]] === 'function') {
+                            var value = this.opt[options[i]].call(this.element);
+
+                            if (value) {
+                                this.opt[options[i]] = value;
+                            } else {
+                                delete this.opt[options[i]];
+                            }
+                        }
+                    }
+                },
+
+                // TODO: model spec
+                _fill: function(score) {
+                    var hash = 0;
+
+                    for (var i = 1; i <= this.stars.length; i++) {
+                        var icon;
+                        var star   = this.stars[i - 1];
+                        var turnOn = this._turnOn(i, score);
+
+                        if (this.opt.iconRange && this.opt.iconRange.length > hash) {
+                            var irange = this.opt.iconRange[hash];
+
+                            icon = this._getRangeIcon(irange, turnOn);
+
+                            if (i <= irange.range) {
+                                this._setIcon(star, icon);
+                            }
+
+                            if (i === irange.range) {
+                                hash++;
+                            }
+                        } else {
+                            icon = this.opt[turnOn ? 'starOn' : 'starOff'];
+
+                            this._setIcon(star, icon);
+                        }
+                    }
+                },
+
+                _getDecimal: function(number, fractions) {
+                    var decimal = number.toString().split('.')[1];
+                    var result  = 0;
+
+                    if (decimal) {
+                        result = parseInt(decimal.slice(0, fractions), 10);
+
+                        if (decimal.slice(1, 5) === '9999') {
+                            result++;
+                        }
+                    }
+
+                    return result;
+                },
+
+                // TODO: model spec
+                _getRangeIcon: function(irange, turnOn) {
+                    return turnOn ? irange.on || this.opt.starOn : irange.off || this.opt.starOff;
+                },
+
+                // TODO: model spec
+                _getScoreByPosition: function(evt, icon) {
+                    var score = parseInt(icon.alt || icon.getAttribute('data-alt'), 10);
+
+                    if (this.opt.half) {
+                        var size    = this._getWidth();
+                        var percent = parseFloat((evt.pageX - $(icon).offset().left) / size);
+
+                        score = score - 1 + percent;
+                    }
+
+                    return score;
+                },
+
+                // TODO: model spec
+                _getHint: function(score, evt) {
+                    if (score !== 0 && !score) {
+                        return this.opt.noRatedMsg;
+                    }
+
+                    var decimal = this._getDecimal(score, 1);
+                    var integer = Math.ceil(score);
+                    var group   = this.opt.hints[(integer || 1) - 1];
+                    var hint    = group;
+                    var set     = !evt || this.isMove;
+
+                    if (this.opt.precision) {
+                        if (set) {
+                            decimal = decimal === 0 ? 9 : decimal - 1;
+                        }
+
+                        hint = group[decimal];
+                    } else if (this.opt.halfShow || this.opt.half) {
+                        decimal = set && decimal === 0 ? 1 : decimal > 5 ? 1 : 0;
+
+                        hint = group[decimal];
+                    }
+
+                    return hint === '' ? '' : hint || score;
+                },
+
+                // TODO: model spec
+                _getWidth: function() {
+                    var width = this.stars[0].width || parseFloat(this.stars.eq(0).css('font-size'));
+
+                    if (!width) {
+                        this._error('Could not get the icon width!');
+                    }
+
+                    return width;
+                },
+
+                // TODO: model spec
+                _lock: function() {
+                    var hint = this._getHint(this.scoreField.val());
+
+                    this.element.style.cursor = '';
+                    this.element.title        = hint;
+
+                    this.scoreField.prop('readonly', true);
+                    this.stars.prop('title', hint);
+
+                    if (this.cancelButton) {
+                        this.cancelButton.hide();
+                    }
+
+                    this.self.data('readonly', true);
+                },
+
+                _nameForIndex: function(i) {
+                    return this.opt.score && this.opt.score >= i ? 'starOn' : 'starOff';
+                },
+
+                // TODO: model spec
+                _resetTitle: function() {
+                    for (var i = 0; i < this.opt.number; i++) {
+                        this.stars[i].title = this._getHint(i + 1);
+                    }
+                },
+
+                // TODO: model spec
+                _roundHalfScore: function(score) {
+                    var integer = parseInt(score, 10);
+                    var decimal = this._getDecimal(score, 1);
+
+                    if (decimal !== 0) {
+                        decimal = decimal > 5 ? 1 : 0.5;
+                    }
+
+                    return integer + decimal;
+                },
+
+                // TODO: model spec
+                _roundStars: function(score, evt) {
+                    var name = this._starName(score, evt);
+
+                    if (name) {
+                        var icon = this.opt[name];
+                        var star = this.stars[Math.ceil(score) - 1];
+
+                        this._setIcon(star, icon);
+                    } // Full down: [x.00 .. x.25]
+                },
+
+                // TODO: model spec
+                _setIcon: function(star, icon) {
+                    star[this.opt.starType === 'img' ? 'src' : 'className'] = this.opt.path + icon;
+                },
+
+                _setPath: function() {
+                    this.opt.path = this.opt.path || '';
+
+                    if (this.opt.path && this.opt.path.slice(-1)[0] !== '/') {
+                        this.opt.path += '/';
+                    }
+                },
+
+                // TODO: model spec
+                _setTarget: function(target, score) {
+                    if (score) {
+                        score = this.opt.targetFormat.toString().replace('{score}', score);
+                    }
+
+                    if (target.is(':input')) {
+                        target.val(score);
+                    } else {
+                        target.html(score);
+                    }
+                },
+
+                // TODO: model spec
+                _setTitle: function(score, evt) {
+                    if (score) {
+                        var integer = parseInt(Math.ceil(score), 10);
+                        var star    = this.stars[integer - 1];
+
+                        star.title = this._getHint(score, evt);
+                    }
+                },
+
+                _starName: function(score, evt) {
+                    var decimal = +(score % 1).toFixed(2);
+
+                    if (evt || this.isMove) {
+                        return decimal > 0.5 ? 'starOn' : 'starHalf';
+                    }
+
+                    if (decimal <= this.opt.round.down) { // Down: [x.00 ... x.25]
+                        return;
+                    }
+
+                    if (this.opt.halfShow && decimal < this.opt.round.up) { // Half: [x.26 ... x.75]
+                        return 'starHalf';
+                    }
+
+                    if (decimal < this.opt.round.full) { // Off: [x.26 .. x.6]
+                        return 'starOff';
+                    }
+
+                    return 'starOn'; // Up: [x.26 ...] || [x.6 ...]
+                },
+
+                // TODO: model spec
+                _target: function(score, evt) {
+                    if (this.opt.target) {
+                        var target = $(this.opt.target);
+
+                        if (!target.length) {
+                            this._error('Target selector invalid or missing!');
+                        }
+
+                        var mouseover = evt && evt.type === 'mouseover';
+
+                        if (score === undefined) {
+                            score = this.opt.targetText;
+                        } else if (score === null) {
+                            score = mouseover ? this.opt.cancelHint : this.opt.targetText;
+                        } else {
+                            if (this.opt.targetType === 'hint') {
+                                score = this._getHint(score, evt);
+                            } else if (this.opt.precision) {
+                                score = parseFloat(score).toFixed(1);
+                            }
+
+                            var mousemove = evt && evt.type === 'mousemove';
+
+                            if (!mouseover && !mousemove && !this.opt.targetKeep) {
+                                score = this.opt.targetText;
+                            }
+                        }
+
+                        this._setTarget(target, score);
+                    }
+                },
+
+                // TODO: model spec
+                _turnOn: function(i, score) {
+                    return this.opt.single ? (i === score) : (i <= score);
+                },
+
+                // TODO: model spec
+                _unlock: function() {
+                    this.element.style.cursor = 'pointer';
+                    this.element.removeAttribute('title');
+
+                    this.scoreField.removeAttr('readonly');
+
+                    this.self.data('readonly', false);
+
+                    this._resetTitle();
+
+                    if (this.cancelButton) {
+                        this.cancelButton.css('display', '');
+                    }
+                },
+
+                // TODO: model spec
+                cancel: function(click) {
+                    if (this.self.data('readonly') !== true) {
+                        this[click ? 'click' : 'score'].call(this, null);
+
+                        this.scoreField.removeAttr('value');
+                    }
+                },
+
+                // TODO: model spec
+                click: function(score) {
+                    if (this.self.data('readonly') !== true) {
+                        score = this._adjustedScore(score);
+
+                        this._apply(score);
+
+                        if (this.opt.click) {
+                            this.opt.click.call(this.element, score, $.Event('click'));
+                        }
+
+                        this._target(score);
+                    }
+                },
+
+                // TODO: model spec
+                getScore: function() {
+                    var score = [];
+                    var value ;
+
+                    value = this.scoreField.val();
+
+                    score.push(value ? +value : undefined);
+
+                    return (score.length > 1) ? score : score[0];
+                },
+
+                // TODO: model spec
+                move: function(score) {
+                    var integer  = parseInt(score, 10);
+                    var decimal  = this._getDecimal(score, 1);
+
+                    if (integer >= this.opt.number) {
+                        integer = this.opt.number - 1;
+                        decimal = 10;
+                    }
+
+                    var width   = this._getWidth();
+                    var steps   = width / 10;
+                    var star    = $(this.stars[integer]);
+                    var percent = star.offset().left + steps * decimal;
+                    var evt     = $.Event('mousemove', { pageX: percent });
+
+                    this.isMove = true;
+
+                    star.trigger(evt);
+
+                    this.isMove = false;
+                },
+
+                // TODO: model spec
+                readOnly: function(readonly) {
+                    if (this.self.data('readonly') !== readonly) {
+                        if (readonly) {
+                            this.self.off('.raty').children(this.opt.starType).off('.raty');
+
+                            this._lock();
+                        } else {
+                            this._binds();
+                            this._unlock();
+                        }
+
+                        this.self.data('readonly', readonly);
+                    }
+                },
+
+                // TODO: model spec
+                score: function() {
+                    return arguments.length ? this.setScore.apply(this, arguments) : this.getScore();
+                },
+
+                setScore: function(score) {
+                    if (this.self.data('readonly') !== true) {
+                        score = this._adjustedScore(score);
+
+                        this._apply(score);
+                        this._target(score);
+                    }
+                }
+            };
+
+            return Raty;
+        })();
+    }));
+</script>
+     </head>
+
+    <body>
+    <div class="container">
+  <nav>
+    <div class="logo"><%= link_to image_tag("icon", :class => "icon")%>
+      <%= link_to image_tag("logoimg.png", :class => "logo_img"), root_path %>
+    </div>
+    <div class="formsearch" style="text-align: right;width: 40%">
+    <%= simple_form_for :search,url: search_result_path ,  method: "GET", html: { class: 'form-search' } do |f| %>
+        <%= f.input :key_word,:class=>"txt_search", :label => false, placeholder: "Search ...",required: true,input_html: {value: ""} %>
+        <%= f.submit "",:class=>"submit_search"%>
+      <% end %>
+    </div>
+      <div class="links">
+      <% if user_signed_in?%>
+          <span style="font-weight: bold" ><%= "Hello #{current_user.profile.first_name} !"%></span>
+          <% if current_user.isAdmin%>
+            <%= link_to "Orders", books_path %>
+            <%= link_to "Add Book", new_book_path %>
+            <%= link_to "Edit Books", books_path %>
+            <%= link_to "Customers", profiles_path %>
+            <%= link_to "Archive", books_path %>
+            <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+            <%else %>
+            <%= link_to "My shopping cart", user_cart_path %>
+            <%= link_to "My orders", user_orders_path %>
+            <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+          <%end %>
+      <%else %>
+        <%= link_to "Sign Up", new_user_registration_path %>
+        <%= link_to "Login In", new_user_session_path %>
+
+      <%end %>
+      </ul>
+    </div>
+  </nav>
+
+      <div class="content" style="min-height: 500px">
+        <% if current_page?('/register/signup') || current_page?('/sign_in') || current_page?(new_book_path)%>
+          <%= yield %>
+          <%else %>
+      <div class="categories">
+        <% if user_signed_in? && current_user.isAdmin%>
+          <span class="fal fa-angle-right" style="margin-left: 12px;padding-bottom: 7px; text-align: left"> <%=link_to "Unpublished Books",unpublished_books_path %></span>
+        <% end %>
+          <% Category.all.each do |category| %>
+       <span class="fal fa-angle-right" style="margin-left: 8px;padding:4px; width: 100%;text-align: left"> <%= link_to category.name, root_path("category"=>category.name) %> [<%=category.books.count %>]</span>
+          <% end %>
+
+
+      </div>
+  <div class="middlecontent">
+          <%= yield %>
+      </div>
+      <div class="sidebar">
+        <% unless current_page?(user_cart_path) %>
+          <div calss="shopping_cart" style="min-height: 200px">
+        <%if @cart.blank? %>
+           <div style="text-align: center;width:97%;font-weight: bolder;height: 50px;padding-top: 15px; border: #666666 1px solid"> your cart is empty</div>
+           <%else %>
+         <table style="width: 100%;  background-color: #fff"><%@cart.each do |cart_item| %>
+             <tr><td><%=cart_item.title.length >18  ?  cart_item.title[0,17]+"..." : cart_item.title[0,17]  %>
+             </td><td></td><td style="text-align: right"><%=number_to_currency cart_item.price %> </td>
+               <td style="text-align: right">
+                 <%= link_to '<i class="fas fa-trash-alt"></i>'.html_safe, root_after_delete_path(:deleted_book_cart=>cart_item.id), method: :delete, data: { confirm: 'Are you sure you want to delete this book?' } %></td>
+             </tr>
+           <% end %>
+           <tr><td  style="border-top: #2E2F30 1px solid" colspan="3"></td></tr>
+           <tr><td>Sub-total</td><td></td><td style="text-align: right; font-weight:bold"><%= number_to_currency @total%></td><td></td></tr>
+           <tr><td>Sales tax</td><td></td><td style="text-align: right; font-weight:bold"><%=number_to_currency  @sales_tax%></td><td></td></tr>
+           <tr><td>Total</td><td></td><td style="text-align: right; font-weight:bold"><%= number_to_currency @total_after_tax%></td><td></td></tr>
+         </table>
+         <%= link_to "CHECKOUT", "/cart" , class: "checkout"%>
+
+        <%end %>
+         <div style=" padding-bottom:40px; text-align: center">
+           <%= image_tag("stripe.png",{ :alt=>"stripe" , :hspace=>"5" , :vspace=>"5" , :border=>"0" , :height => "59", :class => "stripe" }) %></br>
+           <%= image_tag("visa2-mini.png",{ :alt=>"Visa" , :hspace=>"0" , :vspace=>"3" , :border=>"0" }) %>
+           <%= image_tag("mastercard2-mini.png",{ :alt=>"mastercard" , :hspace=>"0" , :vspace=>"3" , :border=>"0" }) %>
+           <%= image_tag("amex2-mini.png",{ :alt=>"American Express" , :hspace=>"0" , :vspace=>"3" , :border=>"0" }) %>
+           <%= image_tag("discover2-mini.png", { :alt=>"Discover" , :hspace=>"0" , :vspace=>"3" , :border=>"0" }) %>
+           <%= image_tag("paypal2-mini.png", { :alt=>"PayPal" , :hspace=>"0" , :vspace=>"3" , :border=>"0" }) %>
+         </div>
+       </div>
+        <% end %>
+        <div calss="recommended_book">
+          <span style="font-weight: bolder;font-size: 20px">Recommended book</span>
+          <div class="bookcover">
+            <% @book=Book.recommended_book %>
+            <% if @book.cover.attached? %>
+              <%=link_to image_tag(@book.cover, :class => "coverstyle") ,catalog_book_show_path(0,:book_id=>@book.id) %>
+            <%else %>
+              <%=link_to image_tag("defbookcover.jpg", :class => "coverstyle") ,catalog_book_show_path(0,:book_id=>@book.id) %>
+            <%end %>
+          </div>
+          <div class="average-review-rating" data-score="<%=Book.recommended_book_score %>" style="padding-top: 5px"> </div>
+          <h2><%= link_to @book.title, catalog_book_show_path(0,:book_id=>@book.id)%></h2>
+          <p>  <strong>Price:</strong>
+              <%= number_to_currency @book.price %>
+            </p>
+           <p>
+            <%= @book.quantity.to_i %>
+            <strong>Left only!</strong>
+            </p>
+
+              <strong>Author:</strong>
+              <%= @book.author %>
+            <hr>
+            <div class="showrating">
+              <h3>Average Rating</h3>
+              <div class="average-review-rating" data-score="<%=Book.recommended_book_score %>"> </div>
+              <p>Based on <%=pluralize @book.reviews.count, 'review' %></p>
+            </div>
+          </div>
+        </div>
+     </div>
+<%end %>
+  </div>
+    <%current_year=Date.today.year %>
+<%= render "layouts/footer", current_year:current_year %>
+    <script type="text/javascript">
+          $('.average-review-rating').raty({
+            readOnly: true,
+            halfShow : true,
+            number:5,
+            size:1,
+            score: ()=>{$(this).data("score")},
+            path:'/assets/'
+        })
+
+    </script>
+    </body>
+  </html>
